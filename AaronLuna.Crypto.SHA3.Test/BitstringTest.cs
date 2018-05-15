@@ -7,7 +7,7 @@
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
     using SHA3;
-    
+
     [TestClass]
 	public class BitStringTest
 	{
@@ -28,7 +28,7 @@
 			Assert.AreEqual(1, bitString.Length);
 			Assert.AreEqual("0", bitString.ToBinString());
 		}
-        
+
 		[TestMethod, TestCategory(Category)]
 		public void BlockCount_ShouldReturnExpectedValue()
 		{
@@ -217,7 +217,7 @@
 			Assert.AreEqual(false, bitString[2]);
 			Assert.AreEqual(false, bitString[3]);
 		}
-        
+
 		[TestMethod, TestCategory(Category)]
 		public void EqualityOperator_ShouldReturnFalse_WhenDistinctLength()
 		{

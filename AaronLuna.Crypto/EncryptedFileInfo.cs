@@ -14,18 +14,27 @@
         public CipherAlgorithmType FileEncryptionAlgorithmType { get; set; }
         public string EncryptedAesKey { get; set; }
         public string EncryptedAesIv { get; set; }
-        public string FileManifestHashAlgorithmType { get; set; }
+        public HashAlgorithmType FileManifestHashAlgorithmType { get; set; }
         public string EncryptedFileManifest { get; set; }
         public ExchangeAlgorithmType FileManifestKeyEncryptionAlgorithmType { get; set; }
         public string EncryptedFileManifestKey { get; set; }
 
-        public static void Serialize(EncryptedFileInfo fileInfo, string filePath)
+        public static Result Serialize(EncryptedFileInfo fileInfo, string filePath)
         {
-            var serializer = new XmlSerializer(typeof(EncryptedFileInfo));
-            using (var writer = new StreamWriter(filePath))
+            try
             {
-                serializer.Serialize(writer, fileInfo);
+                var serializer = new XmlSerializer(typeof(EncryptedFileInfo));
+                using (var writer = new StreamWriter(filePath))
+                {
+                    serializer.Serialize(writer, fileInfo);
+                }
             }
+            catch (FileNotFoundException ex)
+            {
+                return Result.Fail<EncryptedFileInfo>($"{ex.Message} ({ex.GetType()})");
+            }
+
+            return Result.Ok();
         }
 
         public static Result<EncryptedFileInfo> Deserialize(string filePath)
@@ -43,7 +52,7 @@
             {
                 return Result.Fail<EncryptedFileInfo>($"{ex.Message} ({ex.GetType()})");
             }
-            
+
             return Result.Ok(fileInfo);
         }
     }

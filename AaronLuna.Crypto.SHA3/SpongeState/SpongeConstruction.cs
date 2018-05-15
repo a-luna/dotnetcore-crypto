@@ -8,7 +8,7 @@
 
 		byte[] Process(byte[] bytes, int outputLength, int inputLength = -1);
 	}
-    
+
 	public abstract class SpongeConstruction : ISpongeConstruction
 	{
 		protected readonly SpongeState State;
@@ -16,12 +16,12 @@
         public int Capacity => State.Capacity;
         public int Rate => State.Rate;
         public SpongeSize Size => State.Size;
-        
+
         protected SpongeConstruction(SpongeSize size, int rate)
         {
 			State = new SpongeState(size, rate);
 		}
-        
+
 		protected virtual void Absorb(byte[] bytes, int length)
 		{
 			State.Clear();
@@ -41,18 +41,18 @@
 				Function();
 			}
 		}
-        
+
 		protected abstract void Function();
 		protected abstract BitString GetPadding(int r, int m);
-        
+
 		public virtual byte[] Process(byte[] bytes, int outputLength, int inputLength = -1)
 		{
 			byte[] result = null;
 			if (bytes != null)
 			{
 				inputLength =
-				    (inputLength > -1) 
-				        ? inputLength 
+				    (inputLength > -1)
+				        ? inputLength
 				        : bytes.Length << BitString.Shift;
 
 				Absorb(bytes, inputLength);
@@ -60,7 +60,7 @@
 			}
 			return result;
 		}
-        
+
 		protected virtual byte[] Squeeze(int outputLength)
 		{
 			var rate = State.Rate;
@@ -70,7 +70,7 @@
 				q.Append(State.BitString.Truncate(rate));
 				if (q.Length >= outputLength)
 				{
-					return (q.Length == outputLength) 
+					return (q.Length == outputLength)
 					    ? q.Bytes
 					    : q.Truncate(outputLength).Bytes;
 				}

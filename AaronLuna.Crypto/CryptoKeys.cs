@@ -3,7 +3,7 @@
     using System;
     using System.IO;
     using System.Security.Cryptography;
-        
+
     public static class CryptoKeys
     {
         public static void CreateNewKeyPair(string keyFolderPath)
@@ -12,8 +12,8 @@
             var privateKeyXmlFilePath = Path.Combine(keyFolderPath, "privateKey.xml");
 
             var rsa = new RSACryptoServiceProvider(2048);
-            var publicKey = rsa.ToXmlString(false);
-            var privateKey = rsa.ToXmlString(true);
+            var publicKey = RsaKeyExtensions.ToXmlString(rsa, false);
+            var privateKey = RsaKeyExtensions.ToXmlString(rsa, true);
 
             using (StreamWriter sw = File.CreateText(publicKeyXmlFilePath))
             {
