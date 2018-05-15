@@ -1,0 +1,43 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.27703.2000
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AaronLuna.Crypto.SHA3", "AaronLuna.Crypto.SHA3\AaronLuna.Crypto.SHA3.csproj", "{5DBEC430-B684-4B8F-807D-7CE1EE5E3387}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AaronLuna.Crypto.SHA3.Test", "AaronLuna.Crypto.SHA3.Test\AaronLuna.Crypto.SHA3.Test.csproj", "{3D4844CC-3781-4971-9A9B-BA5E97962B74}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AaronLuna.Crypto", "AaronLuna.Crypto\AaronLuna.Crypto.csproj", "{74434F63-212C-4583-B5CF-88824F25B28F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AaronLuna.Crypto.Test", "AaronLuna.Crypto.Test\AaronLuna.Crypto.Test.csproj", "{673F4CC5-051D-4081-9A84-54FA53A1F933}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{5DBEC430-B684-4B8F-807D-7CE1EE5E3387}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5DBEC430-B684-4B8F-807D-7CE1EE5E3387}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5DBEC430-B684-4B8F-807D-7CE1EE5E3387}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5DBEC430-B684-4B8F-807D-7CE1EE5E3387}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3D4844CC-3781-4971-9A9B-BA5E97962B74}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3D4844CC-3781-4971-9A9B-BA5E97962B74}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3D4844CC-3781-4971-9A9B-BA5E97962B74}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3D4844CC-3781-4971-9A9B-BA5E97962B74}.Release|Any CPU.Build.0 = Release|Any CPU
+		{74434F63-212C-4583-B5CF-88824F25B28F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{74434F63-212C-4583-B5CF-88824F25B28F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{74434F63-212C-4583-B5CF-88824F25B28F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{74434F63-212C-4583-B5CF-88824F25B28F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{673F4CC5-051D-4081-9A84-54FA53A1F933}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{673F4CC5-051D-4081-9A84-54FA53A1F933}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{673F4CC5-051D-4081-9A84-54FA53A1F933}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{673F4CC5-051D-4081-9A84-54FA53A1F933}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {485CAD91-F3FA-4B0E-99B4-97B47E81C85E}
+	EndGlobalSection
+EndGlobal

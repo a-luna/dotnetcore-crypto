@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp2.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\AaronLuna.Crypto.SHA3\AaronLuna.Crypto.SHA3.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="AaronLuna.Common">
+      <HintPath>..\..\aaronluna-common\AaronLuna.Common\bin\Debug\netcoreapp2.0\AaronLuna.Common.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+</Project>
