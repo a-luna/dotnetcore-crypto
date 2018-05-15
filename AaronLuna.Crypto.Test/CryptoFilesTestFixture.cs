@@ -1,21 +1,23 @@
-﻿using System;
-using System.IO;
-using System.Threading.Tasks;
-using AaronLuna.Common.IO;
-
-namespace AaronLuna.Crypto.Test
+﻿namespace AaronLuna.Crypto.Test
 {
+    using System;
+    using System.IO;
+    using System.Threading.Tasks;
+
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
+    using Common.IO;
+    
     [TestClass]
     public class CryptoFilesTestFixture
     {
         const string InputFileName = "smallFile.jpg";
-        string InputMoveFileName = $"{InputFileName}.original";
-        string EncryptedFileName = $"{InputFileName}.encrypted";
-        string InfoXmlFileName = $"{InputFileName}.encrypted.xml";
-        string PublicKeyFileName = "publicKey.xml";
-        string PrivateKeyFileName = "privateKey.xml";
+        const string PublicKeyFileName = "publicKey.xml";
+        const string PrivateKeyFileName = "privateKey.xml";
+
+        readonly string _inputMoveFileName = $"{InputFileName}.original";
+        readonly string _encryptedFileName = $"{InputFileName}.encrypted";
+        readonly string _infoXmlFileName = $"{InputFileName}.encrypted.xml";
 
         string _testFilesFolder;
         string _keysFolder;
@@ -36,9 +38,9 @@ namespace AaronLuna.Crypto.Test
             _keysFolder = _testFilesFolder + $"Keys{Path.DirectorySeparatorChar}";
 
             _inputFilePath = _testFilesFolder + InputFileName;
-            _inputMoveFilePath = _testFilesFolder + InputMoveFileName;
-            _encryptedFilePath = _testFilesFolder + EncryptedFileName;
-            _infoXmlFilePath = _testFilesFolder + InfoXmlFileName;
+            _inputMoveFilePath = _testFilesFolder + _inputMoveFileName;
+            _encryptedFilePath = _testFilesFolder + _encryptedFileName;
+            _infoXmlFilePath = _testFilesFolder + _infoXmlFileName;
             _publicKeyFilePath = _keysFolder + PublicKeyFileName;
             _privateKeyFilePath = _keysFolder + PrivateKeyFileName;
 
@@ -48,9 +50,20 @@ namespace AaronLuna.Crypto.Test
             FileHelper.DeleteFileIfAlreadyExists(_publicKeyFilePath);
             FileHelper.DeleteFileIfAlreadyExists(_privateKeyFilePath);
         }
-
-        [TestMethod]
-        public async Task VerifyEncryptAndDecryptFile_SHA2_256()
+        
+        [DataRow(HashAlgorithmType.HMAC_MD5, 128)]
+        [DataRow(HashAlgorithmType.HMAC_SHA1, 160)]
+        [DataRow(HashAlgorithmType.HMAC_SHA256, 256)]
+        [DataRow(HashAlgorithmType.HMAC_SHA384, 384)]
+        [DataRow(HashAlgorithmType.HMAC_SHA512, 512)]
+        [DataRow(HashAlgorithmType.SHA2_256, 256)]
+        [DataRow(HashAlgorithmType.SHA2_384, 384)]
+        [DataRow(HashAlgorithmType.SHA2_512, 512)]
+        [DataRow(HashAlgorithmType.SHA3_256, 256)]
+        [DataRow(HashAlgorithmType.SHA3_384, 384)]
+        [DataRow(HashAlgorithmType.SHA3_512, 512)]
+        [DataTestMethod]
+        public async Task VerifyFileEncryption(HashAlgorithmType hashAlgorithm, int bitCount)
         {
             Assert.IsTrue(File.Exists(_inputFilePath));
             Assert.IsFalse(File.Exists(_encryptedFilePath));
@@ -63,13 +76,17 @@ namespace AaronLuna.Crypto.Test
             Assert.IsTrue(File.Exists(_publicKeyFilePath));
             Assert.IsTrue(File.Exists(_privateKeyFilePath));
 
-            var encryptResult = await CryptoFiles.EncryptFileAsync(_inputFilePath, _publicKeyFilePath);
+            var encryptResult = await CryptoFiles.EncryptFileAsync(_inputFilePath, _publicKeyFilePath, hashAlgorithm);
             if (encryptResult.Failure)
             {
                 Assert.Fail("Error occurred encrypting file.");
             }
 
             var infoXml = encryptResult.Value;
+            var encryptedFileHashBytes = Convert.FromBase64String(infoXml.EncryptedFileManifest);
+
+            Assert.IsTrue(encryptedFileHashBytes.Length * 8 == bitCount);
+            Assert.IsTrue(infoXml.FileManifestHashAlgorithmType == hashAlgorithm);
 
             File.Move(_inputFilePath, _inputMoveFilePath);
 
@@ -77,171 +94,6 @@ namespace AaronLuna.Crypto.Test
             Assert.IsTrue(File.Exists(_inputMoveFilePath));
             Assert.IsTrue(File.Exists(_encryptedFilePath));
             Assert.IsTrue(File.Exists(_infoXmlFilePath));
-
-            var decryptResult = await CryptoFiles.DecryptFileAsync(_encryptedFilePath, infoXml, _privateKeyFilePath);
-            if (decryptResult.Failure)
-            {
-                Assert.Fail("Error occurred decrypting file.");
-            }
-
-            Assert.IsTrue(File.Exists(_inputFilePath));
-            Assert.IsTrue(decryptResult.Success);
-
-            File.Delete(_publicKeyFilePath);
-            File.Delete(_privateKeyFilePath);
-            File.Delete(_infoXmlFilePath);
-            File.Delete(_encryptedFilePath);
-            File.Delete(_inputFilePath);
-            File.Move(_inputMoveFilePath, _inputFilePath);
-        }
-
-        [TestMethod]
-        public async Task VerifyEncryptAndDecryptFile_SHA2_384()
-        {
-            CryptoKeys.CreateNewKeyPair(_keysFolder);
-
-            var encryptResult = await CryptoFiles.EncryptFileAsync(_inputFilePath, _publicKeyFilePath, HashAlgorithmType.SHA2_384);
-            if (encryptResult.Failure)
-            {
-                Assert.Fail("Error occurred encrypting file.");
-            }
-
-            var infoXml = encryptResult.Value;
-            Assert.IsTrue(infoXml.FileManifestHashAlgorithmType == HashAlgorithmType.SHA2_384);
-
-            File.Move(_inputFilePath, _inputMoveFilePath);
-
-            var decryptResult = await CryptoFiles.DecryptFileAsync(_encryptedFilePath, infoXml, _privateKeyFilePath);
-            if (decryptResult.Failure)
-            {
-                Assert.Fail("Error occurred decrypting file.");
-            }
-
-            Assert.IsTrue(File.Exists(_inputFilePath));
-            Assert.IsTrue(decryptResult.Success);
-
-            File.Delete(_publicKeyFilePath);
-            File.Delete(_privateKeyFilePath);
-            File.Delete(_infoXmlFilePath);
-            File.Delete(_encryptedFilePath);
-            File.Delete(_inputFilePath);
-            File.Move(_inputMoveFilePath, _inputFilePath);
-        }
-
-        [TestMethod]
-        public async Task VerifyEncryptAndDecryptFile_SHA2_512()
-        {
-            CryptoKeys.CreateNewKeyPair(_keysFolder);
-
-            var encryptResult = await CryptoFiles.EncryptFileAsync(_inputFilePath, _publicKeyFilePath, HashAlgorithmType.SHA2_512);
-            if (encryptResult.Failure)
-            {
-                Assert.Fail("Error occurred encrypting file.");
-            }
-
-            var infoXml = encryptResult.Value;
-            Assert.IsTrue(infoXml.FileManifestHashAlgorithmType == HashAlgorithmType.SHA2_512);
-
-            File.Move(_inputFilePath, _inputMoveFilePath);
-
-            var decryptResult = await CryptoFiles.DecryptFileAsync(_encryptedFilePath, infoXml, _privateKeyFilePath);
-            if (decryptResult.Failure)
-            {
-                Assert.Fail("Error occurred decrypting file.");
-            }
-
-            Assert.IsTrue(File.Exists(_inputFilePath));
-            Assert.IsTrue(decryptResult.Success);
-
-            File.Delete(_publicKeyFilePath);
-            File.Delete(_privateKeyFilePath);
-            File.Delete(_infoXmlFilePath);
-            File.Delete(_encryptedFilePath);
-            File.Delete(_inputFilePath);
-            File.Move(_inputMoveFilePath, _inputFilePath);
-        }
-
-        [TestMethod]
-        public async Task VerifyEncryptAndDecryptFile_SHA3_256()
-        {
-            CryptoKeys.CreateNewKeyPair(_keysFolder);
-
-            var encryptResult = await CryptoFiles.EncryptFileAsync(_inputFilePath, _publicKeyFilePath, HashAlgorithmType.SHA3_256);
-            if (encryptResult.Failure)
-            {
-                Assert.Fail("Error occurred encrypting file.");
-            }
-
-            var infoXml = encryptResult.Value;
-            Assert.IsTrue(infoXml.FileManifestHashAlgorithmType == HashAlgorithmType.SHA3_256);
-
-            File.Move(_inputFilePath, _inputMoveFilePath);
-
-            var decryptResult = await CryptoFiles.DecryptFileAsync(_encryptedFilePath, infoXml, _privateKeyFilePath);
-            if (decryptResult.Failure)
-            {
-                Assert.Fail("Error occurred decrypting file.");
-            }
-
-            Assert.IsTrue(File.Exists(_inputFilePath));
-            Assert.IsTrue(decryptResult.Success);
-
-            File.Delete(_publicKeyFilePath);
-            File.Delete(_privateKeyFilePath);
-            File.Delete(_infoXmlFilePath);
-            File.Delete(_encryptedFilePath);
-            File.Delete(_inputFilePath);
-            File.Move(_inputMoveFilePath, _inputFilePath);
-        }
-
-        [TestMethod]
-        public async Task VerifyEncryptAndDecryptFile_SHA3_384()
-        {
-            CryptoKeys.CreateNewKeyPair(_keysFolder);
-
-            var encryptResult = await CryptoFiles.EncryptFileAsync(_inputFilePath, _publicKeyFilePath, HashAlgorithmType.SHA3_384);
-            if (encryptResult.Failure)
-            {
-                Assert.Fail("Error occurred encrypting file.");
-            }
-
-            var infoXml = encryptResult.Value;
-            Assert.IsTrue(infoXml.FileManifestHashAlgorithmType == HashAlgorithmType.SHA3_384);
-
-            File.Move(_inputFilePath, _inputMoveFilePath);
-
-            var decryptResult = await CryptoFiles.DecryptFileAsync(_encryptedFilePath, infoXml, _privateKeyFilePath);
-            if (decryptResult.Failure)
-            {
-                Assert.Fail("Error occurred decrypting file.");
-            }
-
-            Assert.IsTrue(File.Exists(_inputFilePath));
-            Assert.IsTrue(decryptResult.Success);
-
-            File.Delete(_publicKeyFilePath);
-            File.Delete(_privateKeyFilePath);
-            File.Delete(_infoXmlFilePath);
-            File.Delete(_encryptedFilePath);
-            File.Delete(_inputFilePath);
-            File.Move(_inputMoveFilePath, _inputFilePath);
-        }
-
-        [TestMethod]
-        public async Task VerifyEncryptAndDecryptFile_SHA3_512()
-        {
-            CryptoKeys.CreateNewKeyPair(_keysFolder);
-
-            var encryptResult = await CryptoFiles.EncryptFileAsync(_inputFilePath, _publicKeyFilePath, HashAlgorithmType.SHA3_512);
-            if (encryptResult.Failure)
-            {
-                Assert.Fail("Error occurred encrypting file.");
-            }
-
-            var infoXml = encryptResult.Value;
-            Assert.IsTrue(infoXml.FileManifestHashAlgorithmType == HashAlgorithmType.SHA3_512);
-
-            File.Move(_inputFilePath, _inputMoveFilePath);
 
             var decryptResult = await CryptoFiles.DecryptFileAsync(_encryptedFilePath, infoXml, _privateKeyFilePath);
             if (decryptResult.Failure)

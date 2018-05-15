@@ -12,8 +12,9 @@
             var privateKeyXmlFilePath = Path.Combine(keyFolderPath, "privateKey.xml");
 
             var rsa = new RSACryptoServiceProvider(2048);
-            var publicKey = RsaKeyExtensions.ToXmlString(rsa, false);
-            var privateKey = RsaKeyExtensions.ToXmlString(rsa, true);
+            
+            var publicKey = rsa.ToXml(false);
+            var privateKey = rsa.ToXml(true);
 
             using (StreamWriter sw = File.CreateText(publicKeyXmlFilePath))
             {
@@ -24,6 +25,17 @@
             {
                 sw.Write(privateKey);
             }
+        }
+
+        public static string ReadRsaXmlKeyFromFile(string rsaXmlKeyFilePath)
+        {
+            string rsaKey;
+            using (var sr = File.OpenText(rsaXmlKeyFilePath))
+            {
+                rsaKey = sr.ReadToEnd();
+            }
+
+            return rsaKey;
         }
 
         public static void ExportPrivateKey(RSACryptoServiceProvider csp, TextWriter outputStream)

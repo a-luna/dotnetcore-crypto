@@ -6,7 +6,7 @@
 
     static class RsaKeyExtensions
     {
-        public static void FromXmlString(this RSA rsa, string xmlString)
+        public static void FromXml(this RSA rsa, string xmlString)
         {
             RSAParameters parameters = new RSAParameters();
             XmlDocument xmlDoc = new XmlDocument();
@@ -37,7 +37,7 @@
             rsa.ImportParameters(parameters);
         }
 
-        public static string ToXmlString(this RSA rsa, bool includePrivateParameters)
+        public static string ToXml(this RSA rsa, bool includePrivateParameters)
         {
             RSAParameters parameters = rsa.ExportParameters(includePrivateParameters);
 
