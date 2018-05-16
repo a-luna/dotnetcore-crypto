@@ -6,7 +6,7 @@
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
     using SHA3;
-    
+
     [TestClass]
 	public class SpongeStateTest
 	{
@@ -193,7 +193,7 @@
 			Assert.AreNotSame(state.BitString, copy.BitString);
 			Assert.AreEqual(state.BitString, copy.BitString);
 		}
-        
+
 		[TestMethod, TestCategory(Category)]
 		public void Clear_ShouldClearState()
 		{
@@ -237,7 +237,7 @@
 				}
 			}
 		}
-        
+
 		[TestMethod, TestCategory(Category)]
 		public void GetBit_ShouldReturnExpectedBit()
 		{
@@ -363,7 +363,7 @@
 				    var rowCheck = (z & 1) == 0
 				        ? row.GetBits().All(b => b)
 				        : row.GetBits().All(b => !b);
-                    
+
                     Assert.IsTrue(rowCheck);
 				    z++;
 				}
@@ -382,7 +382,7 @@
 				    var rowCheck = (z & 1) == 0
 				        ? row.GetBits().All(b => b)
 				        : row.GetBits().All(b => !b);
-                    
+
                     Assert.IsTrue(rowCheck);
 				}
 			}
@@ -397,7 +397,7 @@
 			    var rowCheck = (row.Z & 1) == 0
 			        ? row.GetBits().All((b) => b)
 			        : row.GetBits().All((b) => !b);
-                
+
                 Assert.IsTrue(rowCheck);
 			}
 		}

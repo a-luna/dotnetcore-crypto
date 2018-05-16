@@ -17,7 +17,7 @@
 
         readonly string _inputMoveFileName = $"{InputFileName}.original";
         readonly string _encryptedFileName = $"{InputFileName}.encrypted";
-        readonly string _infoXmlFileName = $"{InputFileName}.encrypted.xml";
+        readonly string _encryptedFileInfoXmlFileName = $"{InputFileName}.encrypted.xml";
 
         string _testFilesFolder;
         string _keysFolder;
@@ -40,7 +40,7 @@
             _inputFilePath = _testFilesFolder + InputFileName;
             _inputMoveFilePath = _testFilesFolder + _inputMoveFileName;
             _encryptedFilePath = _testFilesFolder + _encryptedFileName;
-            _infoXmlFilePath = _testFilesFolder + _infoXmlFileName;
+            _infoXmlFilePath = _testFilesFolder + _encryptedFileInfoXmlFileName;
             _publicKeyFilePath = _keysFolder + PublicKeyFileName;
             _privateKeyFilePath = _keysFolder + PrivateKeyFileName;
 
@@ -82,20 +82,20 @@
                 Assert.Fail("Error occurred encrypting file.");
             }
 
-            var infoXml = encryptResult.Value;
-            var encryptedFileHashBytes = Convert.FromBase64String(infoXml.EncryptedFileManifest);
+            var encryptedFileInfo = encryptResult.Value;
+            var encryptedFileHashBytes = Convert.FromBase64String(encryptedFileInfo.EncryptedFileDigest);
 
             Assert.IsTrue(encryptedFileHashBytes.Length * 8 == bitCount);
-            Assert.IsTrue(infoXml.FileManifestHashAlgorithmType == hashAlgorithm);
+            Assert.IsTrue(encryptedFileInfo.FileDigestHashAlgorithmType == hashAlgorithm);
 
             File.Move(_inputFilePath, _inputMoveFilePath);
 
             Assert.IsFalse(File.Exists(_inputFilePath));
             Assert.IsTrue(File.Exists(_inputMoveFilePath));
             Assert.IsTrue(File.Exists(_encryptedFilePath));
-            Assert.IsTrue(File.Exists(_infoXmlFilePath));
+            Assert.IsTrue(File.Exists(_infoXmlFilePath));            
 
-            var decryptResult = await CryptoFiles.DecryptFileAsync(_encryptedFilePath, infoXml, _privateKeyFilePath);
+            var decryptResult = await CryptoFiles.DecryptFileAsync(_encryptedFilePath, _privateKeyFilePath, _infoXmlFilePath);
             if (decryptResult.Failure)
             {
                 Assert.Fail("Error occurred decrypting file.");

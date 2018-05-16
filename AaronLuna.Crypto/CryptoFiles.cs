@@ -10,16 +10,20 @@
 
     public static class CryptoFiles
     {
-        public static async Task<Result<EncryptedFileInfo>> EncryptFileAsync(string filePath, string publicRsaKeyXmlFilePath, HashAlgorithmType hashAlgorithm=HashAlgorithmType.SHA2_256)
+        public static async Task<Result<EncryptedFileInfo>> EncryptFileAsync(
+            string filePath,
+            string publicKeyXmlFilePath,
+            HashAlgorithmType hashAlgorithm = HashAlgorithmType.SHA2_256)
         {
             var folderPath = Path.GetDirectoryName(filePath);
             var encryptedFileName = $"{Path.GetFileName(filePath)}.encrypted";
             var infoXmlFilePath = Path.Combine(folderPath, $"{encryptedFileName}.xml");
+            
             EncryptedFileInfo infoXml;
-
             try
             {
-                infoXml = await Task.Factory.StartNew(() => Encrypt(filePath, publicRsaKeyXmlFilePath, hashAlgorithm));
+                var publicKeyXml = CryptoKeys.ReadXmlKeyFromFile(publicKeyXmlFilePath);
+                infoXml = await Task.Factory.StartNew(() => Encrypt(filePath, publicKeyXml, hashAlgorithm));
             }
             catch (FileNotFoundException ex)
             {
@@ -27,20 +31,31 @@
             }
 
             var serializationResult = EncryptedFileInfo.Serialize(infoXml, infoXmlFilePath);
-            if (serializationResult.Failure)
-            {
-                return Result.Fail<EncryptedFileInfo>("Error occurred serializing encrypted file info to XML.");
-            }
 
-            return Result.Ok(infoXml);
+            return serializationResult.Success
+                ? Result.Ok(infoXml)
+                : Result.Fail<EncryptedFileInfo>("Error occurred serializing encrypted file info to XML.");
         }
 
-        public static async Task<Result> DecryptFileAsync(string encryptedFilePath, EncryptedFileInfo infoXml, string privateRsaKeyXmlFilePath)
+        public static async Task<Result> DecryptFileAsync(
+            string encryptedFilePath,
+            string privateKeyXmlFilePath,
+            string encryptedFileInfoXmlFilePath)
         {
             Result decryptResult;
             try
             {
-                decryptResult = await Task.Factory.StartNew(() => Decrypt(encryptedFilePath, infoXml, privateRsaKeyXmlFilePath));
+                var deserializationResult = EncryptedFileInfo.Deserialize(encryptedFileInfoXmlFilePath);
+                if (deserializationResult.Failure)
+                {
+                    return Result.Fail(
+                        "An error occurred reading the encryption info XML file, unable to continue decrypting file.");
+                }
+
+                var encryptionInfoXml = deserializationResult.Value;
+                var privateKeyXml = CryptoKeys.ReadXmlKeyFromFile(privateKeyXmlFilePath);
+
+                decryptResult = await Task.Factory.StartNew(() => Decrypt(encryptedFilePath, encryptionInfoXml, privateKeyXml));
             }
             catch (Exception ex)
             {
@@ -50,69 +65,33 @@
             return decryptResult;
         }
 
-        static EncryptedFileInfo Encrypt(string filePath, string publicRsaKeyXmlFilePath, HashAlgorithmType hashAlgorithm)
+        static EncryptedFileInfo Encrypt(string filePath, string publicKeyXml, HashAlgorithmType hashAlgorithm)
         {
             var folderPath = Path.GetDirectoryName(filePath);
             var fileName = Path.GetFileName(filePath);
             var encryptedFileName = $"{fileName}.encrypted";
             var encryptedFilePath = Path.Combine(folderPath, encryptedFileName);
 
-            var signatureKey = GetRandomBytes(64);
-            var encryptionKey = GetRandomBytes(16);
-            var encryptionIv = GetRandomBytes(16);
+            var signatureKey = CryptoRandom.GetRandomBytes(64);
+            var encryptionKey = CryptoRandom.GetRandomBytes(16);
+            var encryptionIv = CryptoRandom.GetRandomBytes(16);
 
-            using (var aes = new AesCryptoServiceProvider())
+            using (var aes = new AesCryptoServiceProvider { KeySize = 128, Key = encryptionKey, IV = encryptionIv })
+            using (var encryptor = aes.CreateEncryptor())
+            using (var fsInput = File.Open(filePath, FileMode.Open, FileAccess.Read, FileShare.Read))
+            using (var fsEncrypted = File.Open(encryptedFilePath, FileMode.Create, FileAccess.Write, FileShare.None))
+            using (var cs = new CryptoStream(fsEncrypted, encryptor, CryptoStreamMode.Write))
             {
-                aes.KeySize = 128;
-                using (var encryptor = aes.CreateEncryptor(encryptionKey, encryptionIv))
-                using (var fsInput = File.Open(filePath, FileMode.Open, FileAccess.Read, FileShare.Read))
-                using (var fsEncrypted = File.Open(encryptedFilePath, FileMode.Create, FileAccess.Write, FileShare.None))
-                using (var cs = new CryptoStream(fsEncrypted, encryptor, CryptoStreamMode.Write))
-                {
-                    fsInput.CopyTo(cs);
-                }
+                fsInput.CopyTo(cs);
             }
 
-            var encryptedFileSignature = CryptoHashers.CalculateFileDigest(encryptedFilePath, hashAlgorithm, signatureKey);
-            var publicRsaKey = CryptoKeys.ReadRsaXmlKeyFromFile(publicRsaKeyXmlFilePath);
+            var encryptedAesKey = Convert.ToBase64String(EncryptBytesRsa(encryptionKey, publicKeyXml));
+            var encryptedAesIv = Convert.ToBase64String(EncryptBytesRsa(encryptionIv, publicKeyXml));
 
-            return CreateInfoXml(
-                fileName,
-                encryptedFileName,
-                encryptedFileSignature,
-                signatureKey,
-                hashAlgorithm,
-                encryptionKey,
-                encryptionIv,
-                publicRsaKey);
-        }
-        
-        static byte[] GetRandomBytes(int length)
-        {
-            byte[] bytes = new byte[length];
-            using (RNGCryptoServiceProvider random = new RNGCryptoServiceProvider())
-            {
-                random.GetBytes(bytes);
-            }
-
-            return bytes;
-        }
-
-        static EncryptedFileInfo CreateInfoXml(
-            string fileName,
-            string encryptedFileName,
-            byte[] signature,
-            byte[] signatureKey,
-            HashAlgorithmType hashAlgorithm,
-            byte[] encryptionKey,
-            byte[] encryptionIv,
-            string rsaKey)
-        {   
-            var encryptedAesKey = Convert.ToBase64String(EncryptBytesRsa(encryptionKey, rsaKey));
-            var encryptedAesIv = Convert.ToBase64String(EncryptBytesRsa(encryptionIv, rsaKey));
-            var encryptedFileManifest = Convert.ToBase64String(signature);
-            var encryptedFileManifestKey = Convert.ToBase64String(EncryptBytesRsa(signatureKey, rsaKey));
-
+            var encryptedFileDigestKey = Convert.ToBase64String(EncryptBytesRsa(signatureKey, publicKeyXml));
+            var encryptedFileDigestBytes = CryptoHashers.CalculateFileDigest(encryptedFilePath, hashAlgorithm, signatureKey);
+            var encryptedFileDigest = Convert.ToBase64String(encryptedFileDigestBytes);
+            
             return new EncryptedFileInfo
             {
                 FileName = fileName,
@@ -120,10 +99,10 @@
                 FileEncryptionAlgorithmType = CipherAlgorithmType.Aes128,
                 EncryptedAesKey = encryptedAesKey,
                 EncryptedAesIv = encryptedAesIv,
-                FileManifestHashAlgorithmType = hashAlgorithm,
-                EncryptedFileManifest = encryptedFileManifest,
-                FileManifestKeyEncryptionAlgorithmType = ExchangeAlgorithmType.RsaKeyX,
-                EncryptedFileManifestKey = encryptedFileManifestKey
+                FileDigestHashAlgorithmType = hashAlgorithm,
+                EncryptedFileDigest = encryptedFileDigest,
+                FileDigestKeyEncryptionAlgorithmType = ExchangeAlgorithmType.RsaKeyX,
+                EncryptedFileDigestKey = encryptedFileDigestKey
             };
         }
 
@@ -151,18 +130,17 @@
             return decrypted;
         }
 
-        static Result Decrypt(string encryptedFilePath, EncryptedFileInfo infoXml, string privateRsaKeyXmlFilePath)
+        static Result Decrypt(string encryptedFilePath, EncryptedFileInfo encryptionInfoXml, string privateKeyXml)
         {
             var folderPath = Path.GetDirectoryName(encryptedFilePath);
-            var filePath = Path.Combine(folderPath, infoXml.FileName);
-
-            var privateRsaKey = CryptoKeys.ReadRsaXmlKeyFromFile(privateRsaKeyXmlFilePath);
-            var aesKey = DecryptBytesRsa(Convert.FromBase64String(infoXml.EncryptedAesKey), privateRsaKey);
-            var aesIv = DecryptBytesRsa(Convert.FromBase64String(infoXml.EncryptedAesIv), privateRsaKey);
+            var filePath = Path.Combine(folderPath, encryptionInfoXml.FileName);
             
-            var signatureKey = DecryptBytesRsa(Convert.FromBase64String(infoXml.EncryptedFileManifestKey), privateRsaKey);
-            var signatureCalculated = Convert.ToBase64String(CryptoHashers.CalculateFileDigest(encryptedFilePath, infoXml.FileManifestHashAlgorithmType, signatureKey));
-            var signatureTransmitted = infoXml.EncryptedFileManifest;
+            var aesKey = DecryptBytesRsa(Convert.FromBase64String(encryptionInfoXml.EncryptedAesKey), privateKeyXml);
+            var aesIv = DecryptBytesRsa(Convert.FromBase64String(encryptionInfoXml.EncryptedAesIv), privateKeyXml);
+
+            var signatureKey = DecryptBytesRsa(Convert.FromBase64String(encryptionInfoXml.EncryptedFileDigestKey), privateKeyXml);
+            var signatureCalculated = Convert.ToBase64String(CryptoHashers.CalculateFileDigest(encryptedFilePath, encryptionInfoXml.FileDigestHashAlgorithmType, signatureKey));
+            var signatureTransmitted = encryptionInfoXml.EncryptedFileDigest;
 
             if (signatureTransmitted != signatureCalculated)
             {
@@ -170,7 +148,7 @@
                     "File manifest calculated for the encrypted file does not match the value in the XML doc. File may have been modified, aborting decryption operation.");
             }
 
-            using (var aes = new AesCryptoServiceProvider {KeySize = 128, Key = aesKey, IV = aesIv })
+            using (var aes = new AesCryptoServiceProvider { KeySize = 128, Key = aesKey, IV = aesIv })
             using (var decryptor = aes.CreateDecryptor())
             using (var fsPlain = File.Open(filePath, FileMode.Create, FileAccess.Write, FileShare.None))
             using (var fsEncrypted = File.Open(encryptedFilePath, FileMode.Open, FileAccess.Read, FileShare.Read))

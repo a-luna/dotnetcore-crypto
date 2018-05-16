@@ -10,7 +10,7 @@
 
   <ItemGroup>
     <Reference Include="AaronLuna.Common">
-      <HintPath>..\..\aaronluna-common\AaronLuna.Common\bin\Debug\netcoreapp2.0\AaronLuna.Common.dll</HintPath>
+      <HintPath>..\ExternalReferences\AaronLuna.Common.dll</HintPath>
     </Reference>
   </ItemGroup>
 

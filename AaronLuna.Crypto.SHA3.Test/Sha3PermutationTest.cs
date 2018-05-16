@@ -251,7 +251,7 @@
 			var res = new BitString(sha3.Process(input.Bytes, 384, 1630)).ToHexString();
 			Assert.AreEqual("34 85 D3 B2 80 BD 38 4C F4 A7 77 84 4E 94 67 81 73 05 5D 1C BC 40 C7 C2 C3 83 3D 9E F1 23 45 17 2D 6F CD 31 92 3B B8 79 5A C8 18 47 D3 D8 85 5C", res);
 		}
-        
+
 		[TestMethod, TestCategory(Category)]
 		public void Sha3_512_ShouldReturnCorrectHash_Bitstring_WithMessage0()
 		{

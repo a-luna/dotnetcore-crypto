@@ -11,13 +11,16 @@
     {
         public string FileName { get; set; }
         public string EncryptedFileName { get; set; }
+
         public CipherAlgorithmType FileEncryptionAlgorithmType { get; set; }
         public string EncryptedAesKey { get; set; }
         public string EncryptedAesIv { get; set; }
-        public HashAlgorithmType FileManifestHashAlgorithmType { get; set; }
-        public string EncryptedFileManifest { get; set; }
-        public ExchangeAlgorithmType FileManifestKeyEncryptionAlgorithmType { get; set; }
-        public string EncryptedFileManifestKey { get; set; }
+
+        public HashAlgorithmType FileDigestHashAlgorithmType { get; set; }
+        public string EncryptedFileDigest { get; set; }
+
+        public ExchangeAlgorithmType FileDigestKeyEncryptionAlgorithmType { get; set; }
+        public string EncryptedFileDigestKey { get; set; }
 
         public static Result Serialize(EncryptedFileInfo fileInfo, string filePath)
         {

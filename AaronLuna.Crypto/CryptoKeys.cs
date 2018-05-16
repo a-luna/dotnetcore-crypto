@@ -12,7 +12,7 @@
             var privateKeyXmlFilePath = Path.Combine(keyFolderPath, "privateKey.xml");
 
             var rsa = new RSACryptoServiceProvider(2048);
-            
+
             var publicKey = rsa.ToXml(false);
             var privateKey = rsa.ToXml(true);
 
@@ -27,10 +27,10 @@
             }
         }
 
-        public static string ReadRsaXmlKeyFromFile(string rsaXmlKeyFilePath)
+        public static string ReadXmlKeyFromFile(string xmlKeyFilePath)
         {
             string rsaKey;
-            using (var sr = File.OpenText(rsaXmlKeyFilePath))
+            using (var sr = File.OpenText(xmlKeyFilePath))
             {
                 rsaKey = sr.ReadToEnd();
             }
@@ -38,10 +38,10 @@
             return rsaKey;
         }
 
-        public static void ExportPrivateKey(RSACryptoServiceProvider csp, TextWriter outputStream)
+        public static void ExportPrivateKey(RSACryptoServiceProvider rsa, TextWriter outputStream)
         {
-            if (csp.PublicOnly) throw new ArgumentException("CSP does not contain a private key", "csp");
-            var parameters = csp.ExportParameters(true);
+            if (rsa.PublicOnly) throw new ArgumentException("CSP does not contain a private key", "rsa");
+            var parameters = rsa.ExportParameters(true);
             using (var stream = new MemoryStream())
             {
                 var writer = new BinaryWriter(stream);
@@ -74,9 +74,9 @@
             }
         }
 
-        public static void ExportPublicKey(RSACryptoServiceProvider csp, TextWriter outputStream)
+        public static void ExportPublicKey(RSACryptoServiceProvider rsa, TextWriter outputStream)
         {
-            var parameters = csp.ExportParameters(false);
+            var parameters = rsa.ExportParameters(false);
             using (var stream = new MemoryStream())
             {
                 var writer = new BinaryWriter(stream);
