@@ -30,7 +30,7 @@
                 return Result.Fail<EncryptedFileInfo>($"{ex.Message} {ex.GetType()}");
             }
 
-            var serializationResult = EncryptedFileInfo.Serialize(infoXml, infoXmlFilePath);
+            var serializationResult = EncryptedFileInfo.SaveToFile(infoXml, infoXmlFilePath);
 
             return serializationResult.Success
                 ? Result.Ok(infoXml)
@@ -45,7 +45,7 @@
             Result decryptResult;
             try
             {
-                var deserializationResult = EncryptedFileInfo.Deserialize(encryptedFileInfoXmlFilePath);
+                var deserializationResult = EncryptedFileInfo.ReadFromFile(encryptedFileInfoXmlFilePath);
                 if (deserializationResult.Failure)
                 {
                     return Result.Fail(

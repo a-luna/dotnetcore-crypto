@@ -22,7 +22,7 @@
         public ExchangeAlgorithmType FileDigestKeyEncryptionAlgorithmType { get; set; }
         public string EncryptedFileDigestKey { get; set; }
 
-        public static Result Serialize(EncryptedFileInfo fileInfo, string filePath)
+        public static Result SaveToFile(EncryptedFileInfo fileInfo, string filePath)
         {
             try
             {
@@ -40,7 +40,7 @@
             return Result.Ok();
         }
 
-        public static Result<EncryptedFileInfo> Deserialize(string filePath)
+        public static Result<EncryptedFileInfo> ReadFromFile(string filePath)
         {
             EncryptedFileInfo fileInfo;
             try
