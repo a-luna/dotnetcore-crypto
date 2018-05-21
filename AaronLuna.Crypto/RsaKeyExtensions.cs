@@ -37,7 +37,7 @@
                             break;
 
                         case "Q":
-                            parameters.Q = string.IsNullOrEmpty(node.InnerText) 
+                            parameters.Q = string.IsNullOrEmpty(node.InnerText)
                                 ? null
                                 : Convert.FromBase64String(node.InnerText);
                             break;
