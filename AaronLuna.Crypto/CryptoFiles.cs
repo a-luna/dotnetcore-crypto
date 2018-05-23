@@ -18,7 +18,7 @@
             var folderPath = Path.GetDirectoryName(filePath);
             var encryptedFileName = $"{Path.GetFileName(filePath)}.encrypted";
             var infoXmlFilePath = Path.Combine(folderPath, $"{encryptedFileName}.xml");
-            
+
             EncryptedFileInfo infoXml;
             try
             {
@@ -91,7 +91,7 @@
             var encryptedFileDigestKey = Convert.ToBase64String(EncryptBytesRsa(signatureKey, publicKeyXml));
             var encryptedFileDigestBytes = CryptoHashers.CalculateFileDigest(encryptedFilePath, hashAlgorithm, signatureKey);
             var encryptedFileDigest = Convert.ToBase64String(encryptedFileDigestBytes);
-            
+
             return new EncryptedFileInfo
             {
                 FileName = fileName,
@@ -134,7 +134,7 @@
         {
             var folderPath = Path.GetDirectoryName(encryptedFilePath);
             var filePath = Path.Combine(folderPath, encryptionInfoXml.FileName);
-            
+
             var aesKey = DecryptBytesRsa(Convert.FromBase64String(encryptionInfoXml.EncryptedAesKey), privateKeyXml);
             var aesIv = DecryptBytesRsa(Convert.FromBase64String(encryptionInfoXml.EncryptedAesIv), privateKeyXml);
 

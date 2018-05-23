@@ -7,7 +7,7 @@
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
     using Common.IO;
-    
+
     [TestClass]
     public class CryptoFilesTestFixture
     {
@@ -50,7 +50,7 @@
             FileHelper.DeleteFileIfAlreadyExists(_publicKeyFilePath);
             FileHelper.DeleteFileIfAlreadyExists(_privateKeyFilePath);
         }
-        
+
         [DataRow(HashAlgorithmType.HMAC_MD5, 128)]
         [DataRow(HashAlgorithmType.HMAC_SHA1, 160)]
         [DataRow(HashAlgorithmType.HMAC_SHA256, 256)]
@@ -93,7 +93,7 @@
             Assert.IsFalse(File.Exists(_inputFilePath));
             Assert.IsTrue(File.Exists(_inputMoveFilePath));
             Assert.IsTrue(File.Exists(_encryptedFilePath));
-            Assert.IsTrue(File.Exists(_infoXmlFilePath));            
+            Assert.IsTrue(File.Exists(_infoXmlFilePath));
 
             var decryptResult = await CryptoFiles.DecryptFileAsync(_encryptedFilePath, _privateKeyFilePath, _infoXmlFilePath);
             if (decryptResult.Failure)
