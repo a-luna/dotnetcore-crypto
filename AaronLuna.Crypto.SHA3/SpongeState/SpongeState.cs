@@ -1,44 +1,44 @@
 ﻿namespace AaronLuna.Crypto.SHA3
 {
-    using System;
-    using System.Collections.Generic;
+	using System;
+	using System.Collections.Generic;
 
-    public sealed class SpongeState
+	public sealed class SpongeState
 	{
 		delegate bool OperationDelegate(int x, int y, int z, bool bit);
 
-        BitString _bitString;
+		BitString _bitString;
 
 		public BitString BitString
-        {
-            get => _bitString;
+		{
+			get => _bitString;
 
-            set
-            {
-                if (value == null || value.Length != Size.B)
-                {
-                    throw new ArgumentException($"Invalid bitString length {value} instead of {Size.B}", nameof(value));
-                }
+			set
+			{
+				if (value == null || value.Length != Size.B)
+				{
+					throw new ArgumentException($"Invalid bitString length {value} instead of {Size.B}", nameof(value));
+				}
 
-                _bitString = value;
-            }
-        }
+				_bitString = value;
+			}
+		}
 
-        public int Capacity => Size.B - Rate;
-        public int Rate { get; }
-        public SpongeSize Size { get; }
+		public int Capacity => Size.B - Rate;
+		public int Rate { get; }
+		public SpongeSize Size { get; }
 
-        public bool this[int index]
-        {
+		public bool this[int index]
+		{
 			get => _bitString[index];
-            set => _bitString[index] = value;
-        }
+			set => _bitString[index] = value;
+		}
 
 		public bool this[int x, int y, int z]
 		{
-            get => this[GetIndex(x, y, z)];
-            set => this[GetIndex(x, y, z)] = value;
-        }
+			get => this[GetIndex(x, y, z)];
+			set => this[GetIndex(x, y, z)] = value;
+		}
 
 		public SpongeState(SpongeState state)
 		{
@@ -79,8 +79,8 @@
 			Rate = rate;
 		}
 
-	    public void Clear()
-	    {
+		public void Clear()
+		{
 			_bitString.Clear();
 		}
 
@@ -94,8 +94,8 @@
 			return GetIndex(spongeBit.X, spongeBit.Y, spongeBit.Z);
 		}
 
-	    public int GetIndex(int x, int y, int z)
-	    {
+		public int GetIndex(int x, int y, int z)
+		{
 			return Size.W * (5 * y + x) + z;
 		}
 
@@ -114,8 +114,8 @@
 			return $"State ({Size}): {_bitString.ToHexString()}";
 		}
 
-	    public SpongeBit GetBit(int index)
-	    {
+		public SpongeBit GetBit(int index)
+		{
 			// index = _size.W * (5 * y + x) + z
 			var w = Size.W;
 			var wCount = index / w;
@@ -218,85 +218,85 @@
 			}
 		}
 
-        public void SetColumn(Column column, IEnumerable<bool> bits) =>
-            ColumnOperation((x, y, z, bit) => bit, column, bits);
+		public void SetColumn(Column column, IEnumerable<bool> bits) =>
+			ColumnOperation((x, y, z, bit) => bit, column, bits);
 
-        public void SetColumns(IEnumerable<bool> bits) =>
-            ColumnsOperation((x, y, z, bit) => bit, bits);
+		public void SetColumns(IEnumerable<bool> bits) =>
+			ColumnsOperation((x, y, z, bit) => bit, bits);
 
-        public void SetLane(Lane lane, IEnumerable<bool> bits) =>
-            LaneOperation((x, y, z, bit) => bit, lane, bits);
+		public void SetLane(Lane lane, IEnumerable<bool> bits) =>
+			LaneOperation((x, y, z, bit) => bit, lane, bits);
 
-        public void SetLanes(IEnumerable<bool> bits) =>
-            LanesOperation((x, y, z, bit) => bit, bits);
+		public void SetLanes(IEnumerable<bool> bits) =>
+			LanesOperation((x, y, z, bit) => bit, bits);
 
-        public void SetPlane(Plane plane, IEnumerable<bool> bits) =>
-            PlaneOperation((x, y, z, bit) => bit, plane, bits);
+		public void SetPlane(Plane plane, IEnumerable<bool> bits) =>
+			PlaneOperation((x, y, z, bit) => bit, plane, bits);
 
-        public void SetPlanes(IEnumerable<bool> bits) =>
-            PlanesOperation((x, y, z, bit) => bit, bits);
+		public void SetPlanes(IEnumerable<bool> bits) =>
+			PlanesOperation((x, y, z, bit) => bit, bits);
 
-        public void SetRow(Row row, IEnumerable<bool> bits) =>
-            RowOperation((x, y, z, bit) => bit, row, bits);
+		public void SetRow(Row row, IEnumerable<bool> bits) =>
+			RowOperation((x, y, z, bit) => bit, row, bits);
 
-        public void SetRows(IEnumerable<bool> bits) =>
-            RowsOperation((x, y, z, bit) => bit, bits);
+		public void SetRows(IEnumerable<bool> bits) =>
+			RowsOperation((x, y, z, bit) => bit, bits);
 
-        public void SetSheet(Sheet sheet, IEnumerable<bool> bits) =>
-            SheetOperation((x, y, z, bit) => bit, sheet, bits);
+		public void SetSheet(Sheet sheet, IEnumerable<bool> bits) =>
+			SheetOperation((x, y, z, bit) => bit, sheet, bits);
 
-        public void SetSheets(IEnumerable<bool> bits) =>
-            SheetsOperation((x, y, z, bit) => bit, bits);
+		public void SetSheets(IEnumerable<bool> bits) =>
+			SheetsOperation((x, y, z, bit) => bit, bits);
 
-        public void SetSlice(Slice slice, IEnumerable<bool> bits) =>
-            SliceOperation((x, y, z, bit) => bit, slice, bits);
+		public void SetSlice(Slice slice, IEnumerable<bool> bits) =>
+			SliceOperation((x, y, z, bit) => bit, slice, bits);
 
-        public void SetSlices(IEnumerable<bool> bits) =>
-            SlicesOperation((x, y, z, bit) => bit, bits);
+		public void SetSlices(IEnumerable<bool> bits) =>
+			SlicesOperation((x, y, z, bit) => bit, bits);
 
-        public void Xor(byte[] data)
-        {
+		public void Xor(byte[] data)
+		{
 			_bitString.Xor(data);
 		}
 
-        public void XorColumn(Column column, IEnumerable<bool> bits) =>
-            ColumnOperation((x, y, z, bit) => this[x, y, z] ^ bit, column, bits);
+		public void XorColumn(Column column, IEnumerable<bool> bits) =>
+			ColumnOperation((x, y, z, bit) => this[x, y, z] ^ bit, column, bits);
 
-        public void XorColumns(IEnumerable<bool> bits) =>
-            ColumnsOperation((x, y, z, bit) => this[x, y, z] ^ bit, bits);
+		public void XorColumns(IEnumerable<bool> bits) =>
+			ColumnsOperation((x, y, z, bit) => this[x, y, z] ^ bit, bits);
 
-        public void XorLane(Lane lane, IEnumerable<bool> bits) =>
-            LaneOperation((x, y, z, bit) => this[x, y, z] ^ bit, lane, bits);
+		public void XorLane(Lane lane, IEnumerable<bool> bits) =>
+			LaneOperation((x, y, z, bit) => this[x, y, z] ^ bit, lane, bits);
 
-        public void XorLanes(IEnumerable<bool> bits) =>
-            LanesOperation((x, y, z, bit) => this[x, y, z] ^ bit, bits);
+		public void XorLanes(IEnumerable<bool> bits) =>
+			LanesOperation((x, y, z, bit) => this[x, y, z] ^ bit, bits);
 
-        public void XorPlane(Plane plane, IEnumerable<bool> bits) =>
-            PlaneOperation((x, y, z, bit) => this[x, y, z] ^ bit, plane, bits);
+		public void XorPlane(Plane plane, IEnumerable<bool> bits) =>
+			PlaneOperation((x, y, z, bit) => this[x, y, z] ^ bit, plane, bits);
 
-        public void XorPlanes(IEnumerable<bool> bits) =>
-            PlanesOperation((x, y, z, bit) => this[x, y, z] ^ bit, bits);
+		public void XorPlanes(IEnumerable<bool> bits) =>
+			PlanesOperation((x, y, z, bit) => this[x, y, z] ^ bit, bits);
 
-        public void XorRow(Row row, IEnumerable<bool> bits) =>
-            RowOperation((x, y, z, bit) => this[x, y, z] ^ bit, row, bits);
+		public void XorRow(Row row, IEnumerable<bool> bits) =>
+			RowOperation((x, y, z, bit) => this[x, y, z] ^ bit, row, bits);
 
-        public void XorRows(IEnumerable<bool> bits) =>
-            RowsOperation((x, y, z, bit) => this[x, y, z] ^ bit, bits);
+		public void XorRows(IEnumerable<bool> bits) =>
+			RowsOperation((x, y, z, bit) => this[x, y, z] ^ bit, bits);
 
-        public void XorSheet(Sheet sheet, IEnumerable<bool> bits) =>
-            SheetOperation((x, y, z, bit) => this[x, y, z] ^ bit, sheet, bits);
+		public void XorSheet(Sheet sheet, IEnumerable<bool> bits) =>
+			SheetOperation((x, y, z, bit) => this[x, y, z] ^ bit, sheet, bits);
 
-        public void XorSheets(IEnumerable<bool> bits) =>
-            SheetsOperation((x, y, z, bit) => this[x, y, z] ^ bit, bits);
+		public void XorSheets(IEnumerable<bool> bits) =>
+			SheetsOperation((x, y, z, bit) => this[x, y, z] ^ bit, bits);
 
-        public void XorSlice(Slice slice, IEnumerable<bool> bits) =>
-            SliceOperation((x, y, z, bit) => this[x, y, z] ^ bit, slice, bits);
+		public void XorSlice(Slice slice, IEnumerable<bool> bits) =>
+			SliceOperation((x, y, z, bit) => this[x, y, z] ^ bit, slice, bits);
 
-        public void XorSlices(IEnumerable<bool> bits) =>
-            SlicesOperation((x, y, z, bit) => this[x, y, z] ^ bit, bits);
+		public void XorSlices(IEnumerable<bool> bits) =>
+			SlicesOperation((x, y, z, bit) => this[x, y, z] ^ bit, bits);
 
-        void ColumnOperation(OperationDelegate function, Column column, IEnumerable<bool> bits)
-        {
+		void ColumnOperation(OperationDelegate function, Column column, IEnumerable<bool> bits)
+		{
 			var y = 0;
 			foreach (var bit in bits)
 			{
@@ -322,9 +322,9 @@
 					z++;
 				}
 
-			    if (z != w) continue;
-			    z = 0;
-			    x++;
+				if (z != w) continue;
+				z = 0;
+				x++;
 			}
 		}
 
@@ -355,9 +355,9 @@
 					x++;
 				}
 
-			    if (x != 5) continue;
-			    x = 0;
-			    y++;
+				if (x != 5) continue;
+				x = 0;
+				y++;
 			}
 		}
 
@@ -371,9 +371,9 @@
 			{
 				this[GetIndex(x, plane.Y, z)] = function(x, plane.Y, z, bit);
 
-			    if (++z != w) continue;
-			    z = 0;
-			    x++;
+				if (++z != w) continue;
+				z = 0;
+				x++;
 			}
 		}
 
@@ -394,9 +394,9 @@
 					x++;
 				}
 
-			    if (x != 5) continue;
-			    x = 0;
-			    y++;
+				if (x != 5) continue;
+				x = 0;
+				y++;
 			}
 		}
 
@@ -427,9 +427,9 @@
 					z++;
 				}
 
-			    if (z != w) continue;
-			    z = 0;
-			    y++;
+				if (z != w) continue;
+				z = 0;
+				y++;
 			}
 		}
 
@@ -443,9 +443,9 @@
 			{
 				this[GetIndex(sheet.X, y, z)] = function(sheet.X, y, z, bit);
 
-			    if (++z != w) continue;
-			    z = 0;
-			    y++;
+				if (++z != w) continue;
+				z = 0;
+				y++;
 			}
 		}
 
@@ -466,9 +466,9 @@
 					y++;
 				}
 
-			    if (y != 5) continue;
-			    y = 0;
-			    x++;
+				if (y != 5) continue;
+				y = 0;
+				x++;
 			}
 		}
 
@@ -481,15 +481,15 @@
 			{
 				this[GetIndex(x, y, slice.Z)] = function(x, y, slice.Z, bit);
 
-			    if (++x != 5) continue;
-			    x = 0;
-			    y++;
+				if (++x != 5) continue;
+				x = 0;
+				y++;
 			}
 		}
 
 		void SlicesOperation(OperationDelegate function, IEnumerable<bool> bits)
 		{
-		    var x = 0;
+			var x = 0;
 			var y = 0;
 			var z = 0;
 
@@ -503,9 +503,9 @@
 					y++;
 				}
 
-			    if (y != 5) continue;
-			    y = 0;
-			    z++;
+				if (y != 5) continue;
+				y = 0;
+				z++;
 			}
 		}
 

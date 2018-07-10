@@ -1,15 +1,15 @@
 ﻿namespace AaronLuna.Crypto.SHA3
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
+	using System;
+	using System.Collections.Generic;
+	using System.Linq;
 
-    public class KeccakPermutation : SpongeConstruction
+	public class KeccakPermutation : SpongeConstruction
 	{
 		struct RoundT : IEquatable<RoundT>
 		{
-		    readonly int _round;
-		    readonly int _t;
+			readonly int _round;
+			readonly int _t;
 
 			public RoundT(int round, int t) {
 				_round = round;
@@ -17,24 +17,24 @@
 			}
 
 			public static bool operator ==(RoundT lhs, RoundT rhs) => lhs.Equals(rhs);
-		    public static bool operator !=(RoundT lhs, RoundT rhs) => !lhs.Equals(rhs);
+			public static bool operator !=(RoundT lhs, RoundT rhs) => !lhs.Equals(rhs);
 
-		    public bool Equals(RoundT other) => _round == other._round && _t == other._t;
-            public override bool Equals(object obj) => obj is RoundT && Equals((RoundT)obj);
+			public bool Equals(RoundT other) => _round == other._round && _t == other._t;
+			public override bool Equals(object obj) => obj is RoundT && Equals((RoundT)obj);
 
-            public override int GetHashCode() => HashCoder<int>.Boost.Compute(_round, _t);
+			public override int GetHashCode() => HashCoder<int>.Boost.Compute(_round, _t);
 		}
 
-	    static readonly Dictionary<int, bool> RoundConstants =
-	        new Dictionary<int, bool> {{0, true}};
+		static readonly Dictionary<int, bool> RoundConstants =
+			new Dictionary<int, bool> {{0, true}};
 
-	    static readonly Dictionary<RoundT, bool> RoundTConstants =
-	        new Dictionary<RoundT, bool>();
+		static readonly Dictionary<RoundT, bool> RoundTConstants =
+			new Dictionary<RoundT, bool>();
 
-        public int RoundCount { get; }
+		public int RoundCount { get; }
 
-        protected KeccakPermutation(SpongeSize size, int rate, int roundCount) : base(size, rate)
-        {
+		protected KeccakPermutation(SpongeSize size, int rate, int roundCount) : base(size, rate)
+		{
 			RoundCount = roundCount;
 		}
 
@@ -65,7 +65,7 @@
 				for (var z = 0; z < w; z++)
 				{
 					c[x, z] =
-					    state.GetColumn(x, z).GetBits().Aggregate((lhs, rhs) => lhs ^ rhs);
+						state.GetColumn(x, z).GetBits().Aggregate((lhs, rhs) => lhs ^ rhs);
 				}
 			}
 
@@ -75,8 +75,8 @@
 				for (var z = 0; z < w; z++)
 				{
 					d[x, z] =
-					    c[BinaryFunctions.Mod(x - 1, 5), z] ^ c[BinaryFunctions.Mod(x + 1, 5),
-					        BinaryFunctions.Mod(z - 1, w)];
+						c[BinaryFunctions.Mod(x - 1, 5), z] ^ c[BinaryFunctions.Mod(x + 1, 5),
+							BinaryFunctions.Mod(z - 1, w)];
 				}
 			}
 
@@ -103,8 +103,8 @@
 
 			var x = 1;
 			var y = 0;
-		    for (var t = 0; t < 24; t++)
-		    {
+			for (var t = 0; t < 24; t++)
+			{
 				var u = ((t + 1) * (t + 2)) >> 1;
 				for (var z = 0; z < w; z++)
 				{
@@ -152,11 +152,11 @@
 					for (var z = 0; z < w; z++)
 					{
 						newState[x, y, z] =
-                            state[x, y, z]
-                                ^ (state[BinaryFunctions.Mod(x + 1, 5), y, z]
-                                ^ true && state[BinaryFunctions.Mod(x + 2, 5),
-                            y,
-                            z]);
+							state[x, y, z]
+								^ (state[BinaryFunctions.Mod(x + 1, 5), y, z]
+								^ true && state[BinaryFunctions.Mod(x + 2, 5),
+							y,
+							z]);
 					}
 				}
 			}
@@ -170,7 +170,7 @@
 			var w = state.Size.W;
 			var l = state.Size.L;
 			var rc = BitString.Zeroes(w);
-		    int t;
+			int t;
 			var rnd = 7 * round;
 
 			for (var j = 0; j <= l; j++)

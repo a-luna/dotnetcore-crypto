@@ -20,7 +20,6 @@
 		public Sha3HashAlgorithm(Size size)
 		{
 			switch (size) {
-
 				case Size.Bits224:
 					_permutation = Sha3Permutation.Sha3_224();
 					break;

@@ -23,7 +23,7 @@
             try
             {
                 var publicKeyXml = CryptoKeys.ReadXmlKeyFromFile(publicKeyXmlFilePath);
-                infoXml = await Task.Factory.StartNew(() => Encrypt(filePath, publicKeyXml, hashAlgorithm));
+                infoXml = await Task.Factory.StartNew(() => Encrypt(filePath, publicKeyXml, hashAlgorithm)).ConfigureAwait(false);
             }
             catch (FileNotFoundException ex)
             {
@@ -55,7 +55,7 @@
                 var encryptionInfoXml = deserializationResult.Value;
                 var privateKeyXml = CryptoKeys.ReadXmlKeyFromFile(privateKeyXmlFilePath);
 
-                decryptResult = await Task.Factory.StartNew(() => Decrypt(encryptedFilePath, encryptionInfoXml, privateKeyXml));
+                decryptResult = await Task.Factory.StartNew(() => Decrypt(encryptedFilePath, encryptionInfoXml, privateKeyXml)).ConfigureAwait(false);
             }
             catch (Exception ex)
             {

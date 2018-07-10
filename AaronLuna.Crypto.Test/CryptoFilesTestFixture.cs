@@ -76,7 +76,7 @@
             Assert.IsTrue(File.Exists(_publicKeyFilePath));
             Assert.IsTrue(File.Exists(_privateKeyFilePath));
 
-            var encryptResult = await CryptoFiles.EncryptFileAsync(_inputFilePath, _publicKeyFilePath, hashAlgorithm);
+            var encryptResult = await CryptoFiles.EncryptFileAsync(_inputFilePath, _publicKeyFilePath, hashAlgorithm).ConfigureAwait(false);
             if (encryptResult.Failure)
             {
                 Assert.Fail("Error occurred encrypting file.");
@@ -95,7 +95,7 @@
             Assert.IsTrue(File.Exists(_encryptedFilePath));
             Assert.IsTrue(File.Exists(_infoXmlFilePath));
 
-            var decryptResult = await CryptoFiles.DecryptFileAsync(_encryptedFilePath, _privateKeyFilePath, _infoXmlFilePath);
+            var decryptResult = await CryptoFiles.DecryptFileAsync(_encryptedFilePath, _privateKeyFilePath, _infoXmlFilePath).ConfigureAwait(false);
             if (decryptResult.Failure)
             {
                 Assert.Fail("Error occurred decrypting file.");

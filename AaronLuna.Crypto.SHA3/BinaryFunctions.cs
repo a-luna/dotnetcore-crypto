@@ -32,7 +32,6 @@
 		    {
 		        value = 255;
 		    }
-
 		    else
 		    {
 		        for (var i = 0; i < count; i++)
