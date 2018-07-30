@@ -44,11 +44,11 @@
             _publicKeyFilePath = _keysFolder + PublicKeyFileName;
             _privateKeyFilePath = _keysFolder + PrivateKeyFileName;
 
-            FileHelper.DeleteFileIfAlreadyExists(_inputMoveFilePath);
-            FileHelper.DeleteFileIfAlreadyExists(_encryptedFilePath);
-            FileHelper.DeleteFileIfAlreadyExists(_infoXmlFilePath);
-            FileHelper.DeleteFileIfAlreadyExists(_publicKeyFilePath);
-            FileHelper.DeleteFileIfAlreadyExists(_privateKeyFilePath);
+            FileHelper.DeleteFileIfAlreadyExists(_inputMoveFilePath, 10);
+            FileHelper.DeleteFileIfAlreadyExists(_encryptedFilePath, 10);
+            FileHelper.DeleteFileIfAlreadyExists(_infoXmlFilePath, 10);
+            FileHelper.DeleteFileIfAlreadyExists(_publicKeyFilePath, 10);
+            FileHelper.DeleteFileIfAlreadyExists(_privateKeyFilePath, 10);
         }
 
         [DataRow(HashAlgorithmType.HMAC_MD5, 128)]
@@ -104,11 +104,11 @@
             Assert.IsTrue(File.Exists(_inputFilePath));
             Assert.IsTrue(decryptResult.Success);
 
-            File.Delete(_publicKeyFilePath);
-            File.Delete(_privateKeyFilePath);
-            File.Delete(_infoXmlFilePath);
-            File.Delete(_encryptedFilePath);
-            File.Delete(_inputFilePath);
+            FileHelper.DeleteFileIfAlreadyExists(_publicKeyFilePath, 10);
+            FileHelper.DeleteFileIfAlreadyExists(_privateKeyFilePath, 10);
+            FileHelper.DeleteFileIfAlreadyExists(_infoXmlFilePath, 10);
+            FileHelper.DeleteFileIfAlreadyExists(_encryptedFilePath, 10);
+            FileHelper.DeleteFileIfAlreadyExists(_inputFilePath, 10);
             File.Move(_inputMoveFilePath, _inputFilePath);
         }
     }
