@@ -64,10 +64,7 @@
         [DataRow(HashAlgorithmType.SHA3_512, 512)]
         [DataTestMethod]
         public async Task VerifyFileEncryption(HashAlgorithmType hashAlgorithm, int bitCount)
-        {
-            Assert.IsTrue(File.Exists(_inputFilePath));
-            Assert.IsFalse(File.Exists(_encryptedFilePath));
-            Assert.IsFalse(File.Exists(_infoXmlFilePath));
+        {   
             Assert.IsFalse(File.Exists(_publicKeyFilePath));
             Assert.IsFalse(File.Exists(_privateKeyFilePath));
 
@@ -75,6 +72,10 @@
 
             Assert.IsTrue(File.Exists(_publicKeyFilePath));
             Assert.IsTrue(File.Exists(_privateKeyFilePath));
+
+            Assert.IsTrue(File.Exists(_inputFilePath));
+            Assert.IsFalse(File.Exists(_encryptedFilePath));
+            Assert.IsFalse(File.Exists(_infoXmlFilePath));
 
             var encryptResult = await CryptoFiles.EncryptFileAsync(_inputFilePath, _publicKeyFilePath, hashAlgorithm).ConfigureAwait(false);
             if (encryptResult.Failure)
@@ -102,7 +103,6 @@
             }
 
             Assert.IsTrue(File.Exists(_inputFilePath));
-            Assert.IsTrue(decryptResult.Success);
 
             FileHelper.DeleteFileIfAlreadyExists(_publicKeyFilePath, 10);
             FileHelper.DeleteFileIfAlreadyExists(_privateKeyFilePath, 10);
