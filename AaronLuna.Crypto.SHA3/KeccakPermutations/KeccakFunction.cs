@@ -1,6 +1,6 @@
 ﻿namespace AaronLuna.Crypto.SHA3
 {
-    // Implements a Keccak-f[b] permutation, which is a Keccak-p[b,nr] permutation 
+    // Implements a Keccak-f[b] permutation, which is a Keccak-p[b,nr] permutation
     // specialized to the case where nr = 12 + 2 * L
 	public class KeccakFunction : KeccakPermutation
 	{

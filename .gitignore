@@ -1,5 +1,7 @@
 ******MAC OS********
 
+AaronLuna.Crypto.Test/TestFiles/CryptoFilesTestFixture/Keys/*
+
 # General
 .DS_Store
 .AppleDouble

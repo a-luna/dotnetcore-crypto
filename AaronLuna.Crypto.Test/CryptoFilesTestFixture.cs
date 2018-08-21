@@ -64,7 +64,7 @@
         [DataRow(HashAlgorithmType.SHA3_512, 512)]
         [DataTestMethod]
         public async Task VerifyFileEncryption(HashAlgorithmType hashAlgorithm, int bitCount)
-        {   
+        {
             Assert.IsFalse(File.Exists(_publicKeyFilePath));
             Assert.IsFalse(File.Exists(_privateKeyFilePath));
 
